@@ -1,0 +1,19 @@
+{
+  "name": "food-suggestion-ai",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "force": "pnpx codemod pnpm/catalog",
+    "lint": "biome check",
+    "format": "biome format . --write"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.20.0",
+  "devDependencies": {
+    "@biomejs/biome": "catalog:"
+  }
+}

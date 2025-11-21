@@ -1,0 +1,12 @@
+.next
+.env.local
+.env
+.DS_Store
+node_modules
+dist
+build
+out
+*.log
+.idea
+venv
+__pycache__/

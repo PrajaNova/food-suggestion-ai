@@ -1,0 +1,11 @@
+POST http://localhost:8000/suggest
+Content-Type: application/json
+
+{
+    "user_input": "i have red suggest me something i can server with this ",
+    "cuisine_type": "Indian"
+}
+
+###
+
+GET http://localhost:8000/models/gemini
