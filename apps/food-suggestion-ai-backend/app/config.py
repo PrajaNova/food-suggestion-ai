@@ -14,7 +14,7 @@ class Settings(BaseSettings):
     
     # Model Configuration
     openai_model: str = "gpt-4o-mini"
-    gemini_model: str = "models/gemini-2.5-flash"
+    gemini_model: str = "models/gemini-2.0-flash-lite"
     
     # Application Settings
     app_name: str = "Food Suggestion AI"
