@@ -12,7 +12,9 @@ export default function Home() {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -20,10 +22,27 @@ export default function Home() {
 
   useEffect(() => {
     scrollToBottom();
-  }, [scrollToBottom]);
+  }, [messages, scrollToBottom]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // Auto-resize textarea
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = "auto";
+      textareaRef.current.style.height = `${Math.min(
+        textareaRef.current.scrollHeight,
+        150
+      )}px`;
+    }
+  }, [input]);
+
+  const handleNewChat = () => {
+    setMessages([]);
+    setInput("");
+    setIsSidebarOpen(false);
+  };
+
+  const handleSubmit = async (e?: React.FormEvent) => {
+    e?.preventDefault();
     if (!input.trim() || isLoading) return;
 
     const userMessage: Message = {
@@ -35,6 +54,7 @@ export default function Home() {
 
     setMessages((prev) => [...prev, userMessage]);
     setInput("");
+    if (textareaRef.current) textareaRef.current.style.height = "auto";
     setIsLoading(true);
 
     try {
@@ -63,65 +83,112 @@ export default function Home() {
     }
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSubmit();
+    }
+  };
+
   return (
     <div className={styles.container}>
-      <header className={styles.header}>
-        <div className={styles.headerContent}>
-          <h1 className={styles.title}>
-            <span className={styles.gradient}>Food Suggestion AI</span>
-          </h1>
-          <p className={styles.subtitle}>
-            Powered by Gemini • Get personalized food recommendations
-          </p>
-        </div>
+      {/* Sidebar */}
+      <aside className={`${styles.sidebar} ${isSidebarOpen ? styles.open : ""}`}>
         <button
           type="button"
-          className={styles.settingsButton}
-          onClick={() => setIsModalOpen(true)}
-          aria-label="API Settings"
+          className={styles.newChatButton}
+          onClick={handleNewChat}
         >
-          ⚙️
+          <span>+</span> New chat
         </button>
-      </header>
 
+        <div className={styles.recentChats}>
+          <div className={styles.recentChatTitle}>Recent</div>
+          <div className={styles.chatItem}>Spicy Chicken Ideas</div>
+          <div className={styles.chatItem}>Vegetarian Pasta</div>
+          <div className={styles.chatItem}>Healthy Breakfast</div>
+        </div>
+
+        <div className={styles.sidebarFooter}>
+          <button
+            type="button"
+            className={styles.sidebarButton}
+            onClick={() => setIsModalOpen(true)}
+          >
+            <span>⚙️</span> Settings
+          </button>
+        </div>
+      </aside>
+
+      {/* Main Content */}
       <main className={styles.main}>
+        <header className={styles.header}>
+          <button
+            type="button"
+            className={styles.mobileMenuBtn}
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+          >
+            ☰
+          </button>
+          <div className={styles.modelSelector}>
+            Food Genie <span style={{ fontSize: "0.8em", opacity: 0.6 }}>▼</span>
+          </div>
+          <div style={{ width: 24 }} /> {/* Spacer for centering if needed */}
+        </header>
+
         <div className={styles.chatContainer}>
           {messages.length === 0 ? (
             <div className={styles.emptyState}>
-              <div className={styles.emptyIcon}>🍽️</div>
-              <h2>What would you like to eat?</h2>
-              <p>
-                Tell me about your cravings, available ingredients, or dietary
-                preferences, and I'll suggest delicious options!
-              </p>
-              <div className={styles.suggestions}>
+              <h1 className={styles.greeting}>
+                <span>Hello, Foodie</span>
+              </h1>
+              <p className={styles.subGreeting}>What are you craving today?</p>
+
+              <div className={styles.suggestionsGrid}>
                 <button
                   type="button"
-                  onClick={() =>
-                    setInput("I want something spicy with chicken")
-                  }
-                  className={styles.suggestionChip}
+                  className={styles.suggestionCard}
+                  onClick={() => setInput("I want something spicy with chicken")}
                 >
-                  🌶️ Spicy chicken dishes
+                  <span className={styles.suggestionIcon}>🌶️</span>
+                  <span className={styles.suggestionText}>
+                    Spicy chicken dishes for dinner
+                  </span>
                 </button>
                 <button
                   type="button"
+                  className={styles.suggestionCard}
                   onClick={() => setInput("vegetarian Italian pasta")}
-                  className={styles.suggestionChip}
                 >
-                  🍝 Vegetarian Italian
+                  <span className={styles.suggestionIcon}>🍝</span>
+                  <span className={styles.suggestionText}>
+                    Vegetarian Italian pasta recipes
+                  </span>
                 </button>
                 <button
                   type="button"
+                  className={styles.suggestionCard}
                   onClick={() => setInput("healthy breakfast ideas")}
-                  className={styles.suggestionChip}
                 >
-                  🥗 Healthy breakfast
+                  <span className={styles.suggestionIcon}>🥗</span>
+                  <span className={styles.suggestionText}>
+                    Quick & healthy breakfast ideas
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  className={styles.suggestionCard}
+                  onClick={() => setInput("sweet desserts with chocolate")}
+                >
+                  <span className={styles.suggestionIcon}>🍫</span>
+                  <span className={styles.suggestionText}>
+                    Decadent chocolate desserts
+                  </span>
                 </button>
               </div>
             </div>
           ) : (
-            <div className={styles.messages}>
+            <div className={styles.messagesWrapper}>
               {messages.map((message) => (
                 <div
                   key={message.id}
@@ -131,33 +198,44 @@ export default function Home() {
                       : styles.assistantMessage
                   }`}
                 >
-                  {message.type === "user" ? (
-                    <div className={styles.userBubble}>{message.content}</div>
-                  ) : (
-                    <div className={styles.assistantContent}>
-                      <p className={styles.assistantText}>{message.content}</p>
-                      {message.suggestions && (
-                        <div className={styles.suggestions}>
-                          {message.suggestions.map((suggestion, index) => (
-                            <SuggestionCard
-                              // biome-ignore lint/suspicious/noArrayIndexKey: temporary fix
-                              key={index}
-                              suggestion={suggestion}
-                              index={index}
-                            />
-                          ))}
-                        </div>
-                      )}
+                  {message.type === "assistant" && (
+                    <div className={`${styles.avatar} ${styles.assistantAvatar}`}>
+                      ✦
+                    </div>
+                  )}
+                  <div className={styles.messageContent}>
+                    {message.content}
+                    {message.suggestions && (
+                      <div style={{ marginTop: "1rem", display: "flex", flexDirection: "column", gap: "1rem" }} >
+                        {message.suggestions.map((suggestion, index) => (
+                          <SuggestionCard
+                            // biome-ignore lint/suspicious/noArrayIndexKey: temporary fix
+                            key={index}
+                            suggestion={suggestion}
+                            index={index}
+                          />
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  {message.type === "user" && (
+                    <div className={`${styles.avatar} ${styles.userAvatar}`}>
+                      U
                     </div>
                   )}
                 </div>
               ))}
               {isLoading && (
                 <div className={`${styles.message} ${styles.assistantMessage}`}>
-                  <div className={styles.loader}>
-                    <div className={styles.dot}></div>
-                    <div className={styles.dot}></div>
-                    <div className={styles.dot}></div>
+                  <div className={`${styles.avatar} ${styles.assistantAvatar}`}>
+                    ✦
+                  </div>
+                  <div className={styles.messageContent}>
+                    <div className={styles.loader}>
+                      <div className={styles.dot} />
+                      <div className={styles.dot} />
+                      <div className={styles.dot} />
+                    </div>
                   </div>
                 </div>
               )}
@@ -165,27 +243,42 @@ export default function Home() {
             </div>
           )}
         </div>
-      </main>
 
-      <footer className={styles.footer}>
-        <form onSubmit={handleSubmit} className={styles.inputForm}>
-          <input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="What are you craving today?"
-            className={styles.input}
-            disabled={isLoading}
-          />
-          <button
-            type="submit"
-            className={styles.sendButton}
-            disabled={!input.trim() || isLoading}
-          >
-            {isLoading ? "⏳" : "✨"}
-          </button>
-        </form>
-      </footer>
+        <div className={styles.inputArea}>
+          <div className={styles.inputContainer}>
+            <form onSubmit={handleSubmit} className={styles.inputForm}>
+              <button type="button" className={styles.actionButton}>
+                <span>+</span>
+              </button>
+              <textarea
+                ref={textareaRef}
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="Ask Food Genie..."
+                className={styles.input}
+                disabled={isLoading}
+                rows={1}
+              />
+              <button type="button" className={styles.actionButton}>
+                <span>🎤</span>
+              </button>
+              <button
+                type="submit"
+                className={`${styles.actionButton} ${styles.sendButton} ${
+                  input.trim() ? styles.active : ""
+                }`}
+                disabled={!input.trim() || isLoading}
+              >
+                ➤
+              </button>
+            </form>
+          </div>
+          <div className={styles.disclaimer}>
+            Food Genie can make mistakes. Consider checking important information.
+          </div>
+        </div>
+      </main>
 
       <ApiKeyModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </div>

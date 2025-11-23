@@ -1,12 +1,36 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Light Theme */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f0f4f9;
+  --bg-sidebar: #f0f4f9;
+  --text-primary: #1f1f1f;
+  --text-secondary: #444746;
+  --accent-color: #0b57d0; /* Gemini Blue */
+  --accent-hover: #0842a0;
+  --border-color: #e1e3e1;
+  --input-bg: #f0f4f9;
+  --user-bubble-bg: #f0f4f9;
+  --assistant-bubble-bg: transparent;
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    /* Dark Theme */
+    --bg-primary: #131314;
+    --bg-secondary: #1e1f20;
+    --bg-sidebar: #1e1f20;
+    --text-primary: #e3e3e3;
+    --text-secondary: #c4c7c5;
+    --accent-color: #a8c7fa;
+    --accent-hover: #8ab4f8;
+    --border-color: #444746;
+    --input-bg: #1e1f20;
+    --user-bubble-bg: #282a2c;
+    --assistant-bubble-bg: transparent;
   }
 }
 
@@ -14,12 +38,13 @@ html,
 body {
   max-width: 100vw;
   overflow-x: hidden;
+  height: 100%;
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  color: var(--text-primary);
+  background: var(--bg-primary);
+  font-family: 'Inter', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -35,8 +60,25 @@ a {
   text-decoration: none;
 }
 
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
-  }
+button {
+  font-family: inherit;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
 }
